@@ -1,6 +1,7 @@
 import React , {Component} 	from 'react';
 import ReactDOM 			from 'react-dom';
-import YTSearch 			from 'youtube-api-search'
+import YTSearch 			from 'youtube-api-search';
+import _					from 'lodash';
 
 import SearchBar 			from './components/search_bar';
 import VideoList 			from './components/video_list' ;
@@ -21,9 +22,15 @@ class  App  extends Component{
 			selectedVideo : null
 		};
 
-		YTSearch ({key: API_KEY , term :'coding'} , (videos) =>{
+		this.videoSearch('');
+		
+	}
+
+	videoSearch(term) {
+
+		YTSearch ({key: API_KEY , term : term} , (videos) =>{
 			this.setState({ 
-				videos 			: videos ,
+				videos 			: videos , 
 				selectedVideo 	: videos[0] //select the first result to play first
 			});
 			//this.setState({videos : videos})
@@ -32,11 +39,22 @@ class  App  extends Component{
 
 	render(){
 
+        //Use the lodash package to call a function during a specific time frame
+        //it is like runnable in Java
+		const videoSearch = _.debounce((term) => {this.videoSearch(term)} , 300);
+
 			return (
 				<div>
-					<SearchBar />
-					<VideoDetail videos =	{this.state.selectedVideo}/>
-					<VideoList   videos =	{this.state.videos} />
+
+					<SearchBar 
+						onSearchTermChange={videoSearch}/>
+
+					<VideoDetail 
+						video  ={this.state.selectedVideo}/>
+					
+					<VideoList   
+						onVideoSelect ={(selectedVideo) => this.setState({selectedVideo})}
+						videos ={this.state.videos} />
 				</div>
 			);
 	}
